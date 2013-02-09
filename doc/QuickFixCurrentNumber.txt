@@ -1,0 +1,93 @@
+*QuickFixCurrentNumber.txt*	Locate the quickfix entry at the cursor position.
+
+		  QUICK FIX CURRENT NUMBER    by Ingo Karkat
+						   *QuickFixCurrentNumber.vim*
+description			|QuickFixCurrentNumber-description|
+usage				|QuickFixCurrentNumber-usage|
+installation			|QuickFixCurrentNumber-installation|
+configuration			|QuickFixCurrentNumber-configuration|
+integration			|QuickFixCurrentNumber-integration|
+limitations			|QuickFixCurrentNumber-limitations|
+known problems			|QuickFixCurrentNumber-known-problems|
+todo				|QuickFixCurrentNumber-todo|
+history				|QuickFixCurrentNumber-history|
+
+==============================================================================
+DESCRIPTION				   *QuickFixCurrentNumber-description*
+
+This plugin ...
+
+HOW IT WORKS								     *
+
+SOURCE									     *
+(Original Vim tip, Stack Overflow answer, ...)
+
+SEE ALSO								     *
+(Plugins offering complementary functionality, or plugins using this library.)
+
+RELATED WORKS								     *
+(Alternatives from other authors, other approaches, references not used here.)
+
+==============================================================================
+USAGE						 *QuickFixCurrentNumber-usage*
+
+":Cnr, :Lnr		Print the number of the entry in the quickfix / location
+"			list for the current cursor position (or the next entry
+"			after the cursor).
+"g<C-Q>			Go to the entry in the location / quickfix list for the
+"			current cursor position (or the next entry after the
+"			cursor).
+
+EXAMPLE					       *QuickFixCurrentNumber-example*
+
+==============================================================================
+INSTALLATION				  *QuickFixCurrentNumber-installation*
+
+This script is packaged as a |vimball|. If you have the "gunzip" decompressor
+in your PATH, simply edit the *.vmb.gz package in Vim; otherwise, decompress
+the archive first, e.g. using WinZip. Inside Vim, install by sourcing the
+vimball or via the |:UseVimball| command. >
+    vim QuickFixCurrentNumber*.vmb.gz
+    :so %
+To uninstall, use the |:RmVimball| command.
+
+DEPENDENCIES				  *QuickFixCurrentNumber-dependencies*
+
+- Requires Vim 7.0 or higher.
+
+==============================================================================
+CONFIGURATION				 *QuickFixCurrentNumber-configuration*
+
+For a permanent configuration, put the following commands into your |vimrc|:
+configvar
+						 *QuickFixCurrentNumber-remap*
+plugmap
+
+==============================================================================
+INTEGRATION				   *QuickFixCurrentNumber-integration*
+
+==============================================================================
+LIMITATIONS				   *QuickFixCurrentNumber-limitations*
+
+KNOWN PROBLEMS				*QuickFixCurrentNumber-known-problems*
+
+TODO						  *QuickFixCurrentNumber-todo*
+
+IDEAS						 *QuickFixCurrentNumber-ideas*
+
+==============================================================================
+HISTORY					       *QuickFixCurrentNumber-history*
+
+GOAL
+First published version.
+
+0.01	08-Feb-2013
+Started development.
+
+==============================================================================
+Copyright: (C) 2013 Ingo Karkat
+The VIM LICENSE applies to this script; see |copyright|.
+
+Maintainer:	Ingo Karkat <ingo@karkat.de>
+==============================================================================
+ vim:tw=78:ts=8:ft=help:norl:
