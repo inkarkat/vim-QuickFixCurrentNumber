@@ -1,0 +1,16 @@
+ 1 down vote favorite
+
+I started using the Tyntastic plugin for Vim, which will run a syntax checker on
+the current buffer and then indicate any lines which have errors. I can open up
+the list of errors as as a location list using :Errors, and then jump to the
+line of a given error newxx by hitting Enter, which will jump to the line containing
+the error in my buffer.
+
+I want to know how I can do the opposite. I want to go from a line in my buffer
+that is marked with having a syntax error to the corresponding entry in the
+location list, so that I can read the full error message in the list. How can I
+do this? I know that :ll [n] will jump to the nth error in the list, but often I
+will not know exactly which error number corresponds to the given line in the
+buffer. I cannot find a command morexx that accepts a line number, rather than an error
+number, however.
+
