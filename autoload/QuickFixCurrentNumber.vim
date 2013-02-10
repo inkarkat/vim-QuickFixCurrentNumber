@@ -10,6 +10,9 @@
 " REVISION	DATE		REMARKS
 "	003	11-Feb-2013	Factor out common checks and errors to
 "				s:CheckAndGetNumber().
+"				Implement moving to next / previous error in
+"				current buffer through
+"				QuickFixCurrentNumber#Next().
 "	002	09-Feb-2013	Split off autoload script and documentation.
 "				Keep the existing (numbered) order when one item
 "				doesn't have a line, or when there's equality in
@@ -138,18 +141,18 @@ function! QuickFixCurrentNumber#Go( ... )
     execute l:cmdPrefix . 'open'
 endfunction
 
-function! QuickFixCurrentNumber#Next( isLocationList, isBackward )
+function! QuickFixCurrentNumber#Next( count, isLocationList, isBackward )
     let l:result = s:CheckAndGetNumber(a:isLocationList, 0)
     if a:isBackward
 	if l:result.nr == 0 && len(l:result.bufferQflist) > 0
 	    " There are no more matches after the cursor, so the last match in
 	    " the buffer must be the one before the cursor.
-	    let l:nextIdx = len(l:result.bufferQflist) - 1
+	    let l:nextIdx = len(l:result.bufferQflist) - a:count
 	else
-	    let l:nextIdx = l:result.idx - 1
+	    let l:nextIdx = l:result.idx - a:count
 	endif
     else
-	let l:nextIdx = (l:result.isOnEntry ? l:result.idx + 1 : l:result.idx)
+	let l:nextIdx = l:result.idx + a:count - (l:result.isOnEntry ? 0 : 1)
     endif
 
     if l:nextIdx < 0 || l:nextIdx >= len(l:result.bufferQflist)
