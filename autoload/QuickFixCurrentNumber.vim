@@ -54,6 +54,7 @@ function! s:QflistSort( i1, i2 )
 	return a:i1.lnum > a:i2.lnum ? 1 : -1
     endif
 endfunction
+
 function! QuickFixCurrentNumber#GetNumber( qflist )
     " Though the list is usually sorted, it is not necessarily (e.g. one can use
     " :caddexpr to add entries out-of-band).
@@ -65,8 +66,10 @@ function! QuickFixCurrentNumber#GetNumber( qflist )
 
     let l:bufferQflist = filter(copy(a:qflist), 'v:val.bufnr ==' . bufnr(''))
 "****D echomsg string(map(sort(l:bufferQflist, 's:QflistSort'), 'v:val.text'))
-    let l:result = {'isEmpty': len(l:bufferQflist) == 0, 'nr': 0, 'isOnEntry': 0}
-    for l:entry in sort(l:bufferQflist, 's:QflistSort')
+    call sort(l:bufferQflist, 's:QflistSort')
+    let l:result = {'isEmpty': len(l:bufferQflist) == 0, 'nr': 0, 'isOnEntry': 0, 'bufferQflist': l:bufferQflist}
+
+    for l:entry in l:result.bufferQflist
 	if l:entry.lnum < line('.')
 	    continue    " Before current line (or line not specified).
 	elseif l:entry.lnum == line('.') && l:entry.col == 0
@@ -134,15 +137,22 @@ endfunction
 
 function! QuickFixCurrentNumber#Next( isLocationList, isBackward )
     let l:result = s:CheckAndGetNumber(a:isLocationList, 0)
-    if l:result.nr <= 0
-	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
-	return
-    endif
 
     if a:isBackward
-	let l:nextNr = l:result.nr - 1
+	if l:result.nr == 0 && len(l:result.bufferQflist) > 0
+	    " There are no more matches after the cursor, so the last match in
+	    " the buffer must be the one before the cursor.
+	    let l:nextNr = l:result.bufferQflist[-1].number
+	else
+	    let l:nextNr = l:result.nr - 1
+	endif
     else
 	let l:nextNr = (l:result.isOnEntry ? l:result.nr + 1 : l:result.nr)
+    endif
+
+    if l:nextNr < 1 || l:nextNr > l:result.bufferQflist[-1].number
+	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+	return
     endif
 
     let l:cmdPrefix = (a:isLocationList ? 'l' : 'c')
