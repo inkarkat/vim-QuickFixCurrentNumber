@@ -67,14 +67,16 @@ function! QuickFixCurrentNumber#GetNumber( qflist )
     let l:bufferQflist = filter(copy(a:qflist), 'v:val.bufnr ==' . bufnr(''))
 "****D echomsg string(map(sort(l:bufferQflist, 's:QflistSort'), 'v:val.text'))
     call sort(l:bufferQflist, 's:QflistSort')
-    let l:result = {'isEmpty': len(l:bufferQflist) == 0, 'nr': 0, 'isOnEntry': 0, 'bufferQflist': l:bufferQflist}
+    let l:result = {'isEmpty': len(l:bufferQflist) == 0, 'idx': -1, 'nr': 0, 'isOnEntry': 0, 'bufferQflist': l:bufferQflist}
 
-    for l:entry in l:result.bufferQflist
+    for l:idx in range(len(l:result.bufferQflist))
+	let l:entry = l:result.bufferQflist[l:idx]
 	if l:entry.lnum < line('.')
 	    continue    " Before current line (or line not specified).
 	elseif l:entry.lnum == line('.') && l:entry.col == 0
 	    " The column is not specified. Match entire line; the actual error
 	    " could be anywhere.
+	    let l:result.idx = l:idx
 	    let l:result.nr = l:entry.number
 	    let l:result.isOnEntry = 1
 	    return l:result
@@ -82,6 +84,7 @@ function! QuickFixCurrentNumber#GetNumber( qflist )
 	    continue    " Before cursor on the current line.
 	endif
 
+	let l:result.idx = l:idx
 	let l:result.nr = l:entry.number
 	let l:result.isOnEntry = (l:entry.lnum == line('.') && l:entry.col == (l:entry.vcol ? vcol('.') : col('.')))
 	return l:result
@@ -137,26 +140,25 @@ endfunction
 
 function! QuickFixCurrentNumber#Next( isLocationList, isBackward )
     let l:result = s:CheckAndGetNumber(a:isLocationList, 0)
-
     if a:isBackward
 	if l:result.nr == 0 && len(l:result.bufferQflist) > 0
 	    " There are no more matches after the cursor, so the last match in
 	    " the buffer must be the one before the cursor.
-	    let l:nextNr = l:result.bufferQflist[-1].number
+	    let l:nextIdx = len(l:result.bufferQflist) - 1
 	else
-	    let l:nextNr = l:result.nr - 1
+	    let l:nextIdx = l:result.idx - 1
 	endif
     else
-	let l:nextNr = (l:result.isOnEntry ? l:result.nr + 1 : l:result.nr)
+	let l:nextIdx = (l:result.isOnEntry ? l:result.idx + 1 : l:result.idx)
     endif
 
-    if l:nextNr < 1 || l:nextNr > l:result.bufferQflist[-1].number
+    if l:nextIdx < 0 || l:nextIdx >= len(l:result.bufferQflist)
 	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
 	return
     endif
 
     let l:cmdPrefix = (a:isLocationList ? 'l' : 'c')
-    execute l:nextNr . l:cmdPrefix . 'first'
+    execute l:result.bufferQflist[l:nextIdx].number . l:cmdPrefix . 'first'
 endfunction
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
