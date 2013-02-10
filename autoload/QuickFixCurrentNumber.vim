@@ -65,41 +65,49 @@ function! QuickFixCurrentNumber#GetNumber( qflist )
 
     let l:bufferQflist = filter(copy(a:qflist), 'v:val.bufnr ==' . bufnr(''))
 "****D echomsg string(map(sort(l:bufferQflist, 's:QflistSort'), 'v:val.text'))
+    let l:result = {'isEmpty': len(l:bufferQflist) == 0, 'nr': 0, 'isOnEntry': 0}
     for l:entry in sort(l:bufferQflist, 's:QflistSort')
 	if l:entry.lnum < line('.')
 	    continue    " Before current line (or line not specified).
 	elseif l:entry.lnum == line('.') && l:entry.col == 0
-	    return l:entry.number   " The column is not specified. Match entire line; the actual error could be anywhere.
+	    " The column is not specified. Match entire line; the actual error
+	    " could be anywhere.
+	    let l:result.nr = l:entry.number
+	    let l:result.isOnEntry = 1
+	    return l:result
 	elseif l:entry.lnum == line('.') && l:entry.col < (l:entry.vcol ? vcol('.') : col('.'))
 	    continue    " Before cursor on the current line.
 	endif
 
-	return l:entry.number
+	let l:result.nr = l:entry.number
+	let l:result.isOnEntry = (l:entry.lnum == line('.') && l:entry.col == (l:entry.vcol ? vcol('.') : col('.')))
+	return l:result
     endfor
 
-    return (len(l:bufferQflist) == 0 ? -1 : 0)
+    return l:result
 endfunction
 
-function! s:CheckAndGetNumber( isLocationList )
+function! s:CheckAndGetNumber( isLocationList, isPrintErrors )
     if &l:buftype ==# 'quickfix'
 	call ingo#msg#ErrorMsg('Already in quickfix')
-	return 0
+	return {'nr': 0}
     endif
 
-    let l:nr = QuickFixCurrentNumber#GetNumber(a:isLocationList ? getloclist(0) : getqflist())
-    if l:nr == -1
-	call ingo#msg#ErrorMsg(l:isLocationList ? 'No location list' : 'No Errors')
-	return 0
-    elseif l:nr == 0
+    let l:result = QuickFixCurrentNumber#GetNumber(a:isLocationList ? getloclist(0) : getqflist())
+    if ! a:isPrintErrors
+	return l:result
+    endif
+
+    if l:result.isEmpty
+	call ingo#msg#ErrorMsg(a:isLocationList ? 'No location list' : 'No Errors')
+    elseif l:result.nr == 0
 	call ingo#msg#ErrorMsg('No more items')
-	return 0
     endif
-
-    return l:nr
+    return l:result
 endfunction
 function! QuickFixCurrentNumber#Print( isLocationList )
-    let l:nr = s:CheckAndGetNumber(a:isLocationList)
-    if l:nr != 0
+    let l:nr = s:CheckAndGetNumber(a:isLocationList, 1).nr
+    if l:nr > 0
 	let l:qflist = (a:isLocationList ? getloclist(0) : getqflist())
 	echomsg printf('(%d of %d): %s', l:nr, len(l:qflist), get(l:qflist[l:nr - 1], 'text', ''))
     endif
@@ -108,8 +116,9 @@ endfunction
 function! QuickFixCurrentNumber#Go( ... )
     let l:isLocationList = (a:0 ? a:1 : ! empty(getloclist(0)))
     let l:cmdPrefix = (l:isLocationList ? 'l' : 'c')
-    let l:nr = s:CheckAndGetNumber(l:isLocationList)
-    if l:nr == 0
+    let l:nr = s:CheckAndGetNumber(l:isLocationList, 1).nr
+    if l:nr <= 0
+	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
 	return
     endif
 
@@ -121,6 +130,23 @@ function! QuickFixCurrentNumber#Go( ... )
     call winrestview(l:save_view)
 
     execute l:cmdPrefix . 'open'
+endfunction
+
+function! QuickFixCurrentNumber#Next( isLocationList, isBackward )
+    let l:result = s:CheckAndGetNumber(a:isLocationList, 0)
+    if l:result.nr <= 0
+	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+	return
+    endif
+
+    if a:isBackward
+	let l:nextNr = l:result.nr - 1
+    else
+	let l:nextNr = (l:result.isOnEntry ? l:result.nr + 1 : l:result.nr)
+    endif
+
+    let l:cmdPrefix = (a:isLocationList ? 'l' : 'c')
+    execute l:nextNr . l:cmdPrefix . 'first'
 endfunction
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
