@@ -8,18 +8,29 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"	003	11-Feb-2013	Factor out common checks and errors to
+"				s:CheckAndGetNumber().
 "	002	09-Feb-2013	Split off autoload script and documentation.
+"				Keep the existing (numbered) order when one item
+"				doesn't have a line, or when there's equality in
+"				columns.
 "	001	08-Feb-2013	file creation
 
+function! s:KeepOrder( i1, i2 )
+    return a:i1.number > a:i2.number ? 1 : -1
+endfunction
 function! s:QflistSort( i1, i2 )
-    if a:i1.lnum == a:i2.lnum
+    if a:i1.lnum == 0 || a:i2.lnum == 0
+	" One doesn't have a line, keep existing order.
+	return s:KeepOrder(a:i1, a:i2)
+    elseif a:i1.lnum == a:i2.lnum
 	" Same line, compare columns.
 	if a:i1.col == 0 || a:i2.col == 0
 	    " One doesn't have a column, keep existing order.
-	    return 0
+	    return s:KeepOrder(a:i1, a:i2)
 	elseif a:i1.vcol == a:i2.vcol
 	    " Same column type, compare.
-	    return a:i1.col == a:i2.col ? 0 : a:i1.col > a:i2.col ? 1 : -1
+	    return a:i1.col == a:i2.col ? s:KeepOrder(a:i1, a:i2) : a:i1.col > a:i2.col ? 1 : -1
 	else
 	    " Different column type, translate the virtual column into the
 	    " byte count.
@@ -34,9 +45,9 @@ function! s:QflistSort( i1, i2 )
 		let &l:tabtop = l:save_tabstop
 	    endif
 	    if a:i1.vcol
-		return l:translatedCol == a:i2.col ? 0 : l:translatedCol > a:i2.col ? 1 : -1
+		return l:translatedCol == a:i2.col ? s:KeepOrder(a:i1, a:i2) : l:translatedCol > a:i2.col ? 1 : -1
 	    else
-		return a:i1.col == l:translatedCol ? 0 : a:i1.col > l:translatedCol ? 1 : -1
+		return a:i1.col == l:translatedCol ? s:KeepOrder(a:i1, a:i2) : a:i1.col > l:translatedCol ? 1 : -1
 	    endif
 	endif
     else
@@ -68,33 +79,37 @@ function! QuickFixCurrentNumber#GetNumber( qflist )
 
     return (len(l:bufferQflist) == 0 ? -1 : 0)
 endfunction
-function! QuickFixCurrentNumber#Print( qflist )
-    let l:nr = QuickFixCurrentNumber#GetNumber(a:qflist)
-    if l:nr == -1
-	call ingo#msg#ErrorMsg('No Errors')
-	return
-    elseif l:nr == 0
-	call ingo#msg#ErrorMsg('No more items')
-	return
-    endif
 
-    echomsg printf('(%d of %d): %s', l:nr, len(a:qflist), get(a:qflist[l:nr - 1], 'text', ''))
-endfunction
-
-function! QuickFixCurrentNumber#Go()
+function! s:CheckAndGetNumber( isLocationList )
     if &l:buftype ==# 'quickfix'
 	call ingo#msg#ErrorMsg('Already in quickfix')
-	return
+	return 0
     endif
 
-    let l:isLocationList = ! empty(getloclist(0))
-    let l:cmdPrefix = (l:isLocationList ? 'l' : 'c')
-    let l:nr = QuickFixCurrentNumber#GetNumber(l:isLocationList ? getloclist(0) : getqflist())
+    let l:nr = QuickFixCurrentNumber#GetNumber(a:isLocationList ? getloclist(0) : getqflist())
     if l:nr == -1
-	call ingo#msg#ErrorMsg('No Errors')
-	return
+	call ingo#msg#ErrorMsg(l:isLocationList ? 'No location list' : 'No Errors')
+	return 0
     elseif l:nr == 0
 	call ingo#msg#ErrorMsg('No more items')
+	return 0
+    endif
+
+    return l:nr
+endfunction
+function! QuickFixCurrentNumber#Print( isLocationList )
+    let l:nr = s:CheckAndGetNumber(a:isLocationList)
+    if l:nr != 0
+	let l:qflist = (a:isLocationList ? getloclist(0) : getqflist())
+	echomsg printf('(%d of %d): %s', l:nr, len(l:qflist), get(l:qflist[l:nr - 1], 'text', ''))
+    endif
+endfunction
+
+function! QuickFixCurrentNumber#Go( ... )
+    let l:isLocationList = (a:0 ? a:1 : ! empty(getloclist(0)))
+    let l:cmdPrefix = (l:isLocationList ? 'l' : 'c')
+    let l:nr = s:CheckAndGetNumber(l:isLocationList)
+    if l:nr == 0
 	return
     endif
 
