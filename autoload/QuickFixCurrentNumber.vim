@@ -1,4 +1,4 @@
-" QuickFixCurrentNumber.vim: Locate the quickfix entry at the cursor position.
+" QuickFixCurrentNumber.vim: Locate the quickfix item at the cursor position.
 "
 " DEPENDENCIES:
 "
@@ -58,7 +58,7 @@ function! s:QflistSort( i1, i2 )
     endif
 endfunction
 
-function! QuickFixCurrentNumber#GetNumber( qflist )
+function! s:GetBufferQflist( qflist )
     " Though the list is usually sorted, it is not necessarily (e.g. one can use
     " :caddexpr to add entries out-of-band).
     let l:idx = 0
@@ -67,34 +67,36 @@ function! QuickFixCurrentNumber#GetNumber( qflist )
 	let l:idx += 1
     endwhile
 
-    let l:bufferQflist = filter(copy(a:qflist), 'v:val.bufnr ==' . bufnr(''))
-"****D echomsg string(map(sort(l:bufferQflist, 's:QflistSort'), 'v:val.text'))
-    call sort(l:bufferQflist, 's:QflistSort')
+    return sort(filter(copy(a:qflist), 'v:val.bufnr ==' . bufnr('')), 's:QflistSort')
+endfunction
+function! s:GetNumber( qflist )
+    let l:bufferQflist = s:GetBufferQflist(a:qflist)
     let l:result = {'isEmpty': len(l:bufferQflist) == 0, 'idx': -1, 'nr': 0, 'isOnEntry': 0, 'bufferQflist': l:bufferQflist}
 
-    for l:idx in range(len(l:result.bufferQflist))
-	let l:entry = l:result.bufferQflist[l:idx]
-	if l:entry.lnum < line('.')
+    for l:idx in range(len(l:bufferQflist))
+	let l:item = l:result.bufferQflist[l:idx]
+	if l:item.lnum < line('.')
 	    continue    " Before current line (or line not specified).
-	elseif l:entry.lnum == line('.') && l:entry.col == 0
+	elseif l:item.lnum == line('.') && l:item.col == 0
 	    " The column is not specified. Match entire line; the actual error
 	    " could be anywhere.
 	    let l:result.idx = l:idx
-	    let l:result.nr = l:entry.number
+	    let l:result.nr = l:item.number
 	    let l:result.isOnEntry = 1
 	    return l:result
-	elseif l:entry.lnum == line('.') && l:entry.col < (l:entry.vcol ? vcol('.') : col('.'))
+	elseif l:item.lnum == line('.') && l:item.col < (l:item.vcol ? vcol('.') : col('.'))
 	    continue    " Before cursor on the current line.
 	endif
 
 	let l:result.idx = l:idx
-	let l:result.nr = l:entry.number
-	let l:result.isOnEntry = (l:entry.lnum == line('.') && l:entry.col == (l:entry.vcol ? vcol('.') : col('.')))
+	let l:result.nr = l:item.number
+	let l:result.isOnEntry = (l:item.lnum == line('.') && l:item.col == (l:item.vcol ? vcol('.') : col('.')))
 	return l:result
     endfor
 
     return l:result
 endfunction
+
 
 function! s:CheckAndGetNumber( isLocationList, isPrintErrors )
     if &l:buftype ==# 'quickfix'
@@ -102,7 +104,7 @@ function! s:CheckAndGetNumber( isLocationList, isPrintErrors )
 	return {'nr': 0}
     endif
 
-    let l:result = QuickFixCurrentNumber#GetNumber(a:isLocationList ? getloclist(0) : getqflist())
+    let l:result = s:GetNumber(a:isLocationList ? getloclist(0) : getqflist())
     if ! a:isPrintErrors
 	return l:result
     endif
@@ -127,8 +129,7 @@ function! QuickFixCurrentNumber#Go( ... )
     let l:cmdPrefix = (l:isLocationList ? 'l' : 'c')
     let l:nr = s:CheckAndGetNumber(l:isLocationList, 1).nr
     if l:nr <= 0
-	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
-	return
+	return 0
     endif
 
     let l:save_view = winsaveview()
@@ -139,6 +140,18 @@ function! QuickFixCurrentNumber#Go( ... )
     call winrestview(l:save_view)
 
     execute l:cmdPrefix . 'open'
+    return 1
+endfunction
+
+
+function! s:GotoIdx( isLocationList, bufferQflist, idx )
+    if a:idx < 0 || a:idx >= len(a:bufferQflist)
+	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+	return
+    endif
+
+    let l:cmdPrefix = (a:isLocationList ? 'l' : 'c')
+    execute a:bufferQflist[a:idx].number . l:cmdPrefix . 'first'
 endfunction
 
 function! QuickFixCurrentNumber#Next( count, isLocationList, isBackward )
@@ -155,13 +168,18 @@ function! QuickFixCurrentNumber#Next( count, isLocationList, isBackward )
 	let l:nextIdx = l:result.idx + a:count - (l:result.isOnEntry ? 0 : 1)
     endif
 
-    if l:nextIdx < 0 || l:nextIdx >= len(l:result.bufferQflist)
-	execute "normal! \<C-\>\<C-n>\<Esc>" | " Beep.
+    call s:GotoIdx(a:isLocationList, l:result.bufferQflist, l:nextIdx)
+endfunction
+function! QuickFixCurrentNumber#Border( count, isLocationList, isEnd )
+    if &l:buftype ==# 'quickfix'
+	call ingo#msg#ErrorMsg('Already in quickfix')
 	return
     endif
 
-    let l:cmdPrefix = (a:isLocationList ? 'l' : 'c')
-    execute l:result.bufferQflist[l:nextIdx].number . l:cmdPrefix . 'first'
+    let l:bufferQflist = s:GetBufferQflist(a:isLocationList ? getloclist(0) : getqflist())
+    let l:idx = (a:isEnd ? len(l:bufferQflist) - a:count : a:count - 1)
+
+    call s:GotoIdx(a:isLocationList, l:bufferQflist, l:idx)
 endfunction
 
 " vim: set ts=8 sts=4 sw=4 noexpandtab ff=unix fdm=syntax :
