@@ -1,6 +1,7 @@
 " QuickFixCurrentNumber.vim: Locate the quickfix item at the cursor position.
 "
 " DEPENDENCIES:
+"   - QuickFixCurrentNumber.vim autoload script
 "
 " Copyright: (C) 2013 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
@@ -8,7 +9,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
-"	003	11-Feb-2013	Implement moving to next / previous error in
+"   1.00.003	11-Feb-2013	Implement moving to next / previous error in
 "				current buffer with ]q etc.
 "				Add :Cgo / :Lgo command alternative to g<C-Q>
 "				mapping.
