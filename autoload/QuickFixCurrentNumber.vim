@@ -1,6 +1,7 @@
 " QuickFixCurrentNumber.vim: Locate the quickfix item at the cursor position.
 "
 " DEPENDENCIES:
+"   - ingo/msg.vim autoload script
 "
 " Copyright: (C) 2013 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
@@ -8,7 +9,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
-"	003	11-Feb-2013	Factor out common checks and errors to
+"   1.00.003	11-Feb-2013	Factor out common checks and errors to
 "				s:CheckAndGetNumber().
 "				Implement moving to next / previous error in
 "				current buffer through
