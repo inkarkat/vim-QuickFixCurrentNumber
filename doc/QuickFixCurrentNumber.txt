@@ -26,30 +26,21 @@ print / go to the item at or after the cursor position, and motions like |]q|
 to go to previous / next errors in the current buffer, based on the cursor
 position.
 
-HOW IT WORKS								     *
-
 SOURCE									     *
 
 Inspired by the following Stack Overflow question:
     http://stackoverflow.com/questions/14778612/jump-to-the-errors-in-the-quickfix-or-location-list-for-the-current-line-in-vim
 
-SEE ALSO								     *
-(Plugins offering complementary functionality, or plugins using this library.)
-
-RELATED WORKS								     *
-(Alternatives from other authors, other approaches, references not used here.)
-
 ==============================================================================
 USAGE						 *QuickFixCurrentNumber-usage*
-
 								 *:Cnr* *:Lnr*
 :Cnr, :Lnr		Print the number of the item in the quickfix /
 			location list for the current cursor position (or the
 			next item after the cursor).
 						      *:Cgo* *:Lgo* *g_CTRL-Q*
-:Cgo, :Lgo, g<C-Q>	Go to the item in the location / quickfix list for
-			the current cursor position (or the next item after
-			the cursor).
+:Cgo, :Lgo, g<C-Q>	Go to the item in the quickfix / location list for the
+			current cursor position (or the next item after the
+			cursor).
 							 *[q* *]q* *g[q* *g]q*
 [q / ]q			Go to [count] previous / next start of an error in the
 			current buffer.
@@ -87,14 +78,14 @@ If you want to use different mappings, map your keys to the
 <Plug>(QuickFixCurrentNumber...) mapping targets _before_ sourcing the script
 (e.g. in your |vimrc|): >
     nmap g<C-q> <Plug>(QuickFixCurrentNumberGo)
-    nmap ]q <Plug>(QuickFixCurrentNumberQNext)
-    nmap [q <Plug>(QuickFixCurrentNumberQPrev)
-    nmap ]l <Plug>(QuickFixCurrentNumberLNext)
-    nmap [l <Plug>(QuickFixCurrentNumberLPrev)
-    nmap g[q <Plug>(QuickFixCurrentNumberQFirst)
-    nmap g]q <Plug>(QuickFixCurrentNumberQLast)
-    nmap g[l <Plug>(QuickFixCurrentNumberLFirst)
-    nmap g]l <Plug>(QuickFixCurrentNumberLLast)
+    nmap ]q     <Plug>(QuickFixCurrentNumberQNext)
+    nmap [q     <Plug>(QuickFixCurrentNumberQPrev)
+    nmap ]l     <Plug>(QuickFixCurrentNumberLNext)
+    nmap [l     <Plug>(QuickFixCurrentNumberLPrev)
+    nmap g[q    <Plug>(QuickFixCurrentNumberQFirst)
+    nmap g]q    <Plug>(QuickFixCurrentNumberQLast)
+    nmap g[l    <Plug>(QuickFixCurrentNumberLFirst)
+    nmap g]l    <Plug>(QuickFixCurrentNumberLLast)
 <
 ==============================================================================
 LIMITATIONS				   *QuickFixCurrentNumber-limitations*
@@ -108,7 +99,7 @@ IDEAS						 *QuickFixCurrentNumber-ideas*
 ==============================================================================
 HISTORY					       *QuickFixCurrentNumber-history*
 
-GOAL
+1.00	18-Feb-2013
 First published version.
 
 0.01	08-Feb-2013
