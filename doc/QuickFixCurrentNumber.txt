@@ -99,7 +99,7 @@ IDEAS						 *QuickFixCurrentNumber-ideas*
 ==============================================================================
 HISTORY					       *QuickFixCurrentNumber-history*
 
-1.00	18-Feb-2013
+1.00	19-Feb-2013
 First published version.
 
 0.01	08-Feb-2013
