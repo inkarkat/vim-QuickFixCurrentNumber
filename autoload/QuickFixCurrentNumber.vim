@@ -9,6 +9,7 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.00.004	19-Feb-2013	Don't print errors for g<C-q> mapping.
 "   1.00.003	11-Feb-2013	Factor out common checks and errors to
 "				s:CheckAndGetNumber().
 "				Implement moving to next / previous error in
@@ -125,10 +126,10 @@ function! QuickFixCurrentNumber#Print( isLocationList )
     endif
 endfunction
 
-function! QuickFixCurrentNumber#Go( ... )
+function! QuickFixCurrentNumber#Go( isPrintErrors, ... )
     let l:isLocationList = (a:0 ? a:1 : ! empty(getloclist(0)))
     let l:cmdPrefix = (l:isLocationList ? 'l' : 'c')
-    let l:nr = s:CheckAndGetNumber(l:isLocationList, 1).nr
+    let l:nr = s:CheckAndGetNumber(l:isLocationList, a:isPrintErrors).nr
     if l:nr <= 0
 	return 0
     endif
