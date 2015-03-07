@@ -3,12 +3,15 @@
 " DEPENDENCIES:
 "   - ingo/msg.vim autoload script
 "
-" Copyright: (C) 2013 Ingo Karkat
+" Copyright: (C) 2013-2015 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.01.005	07-Feb-2015	Factor out
+"				ingo#window#quickfix#TranslateVirtualColToByteCount()
+"				into ingo-library.
 "   1.00.004	19-Feb-2013	Don't print errors for g<C-q> mapping.
 "   1.00.003	11-Feb-2013	Factor out common checks and errors to
 "				s:CheckAndGetNumber().
@@ -39,16 +42,7 @@ function! s:QflistSort( i1, i2 )
 	else
 	    " Different column type, translate the virtual column into the
 	    " byte count.
-	    let l:translatable = (a:i1.vcol ? a:i1 : a:i2)
-	    let l:neededTabstop = getbufvar(l:translatable.bufnr, '&tabstop')
-	    if l:neededTabstop != &tabstop
-		let l:save_tabstop = &l:tabstop
-		let &l:tabstop = l:neededTabstop
-	    endif
-		let l:translatedCol = len(matchstr(getbufline(l:translatable.bufnr, l:translatable.lnum)[0], '^.*\%<'.(l:translatable.col + 1).'v'))
-	    if exists('l:save_tabstop')
-		let &l:tabtop = l:save_tabstop
-	    endif
+	    let l:translatedCol = ingo#window#quickfix#TranslateVirtualColToByteCount(a:i1.vcol ? a:i1 : a:i2)
 	    if a:i1.vcol
 		return l:translatedCol == a:i2.col ? s:KeepOrder(a:i1, a:i2) : l:translatedCol > a:i2.col ? 1 : -1
 	    else
