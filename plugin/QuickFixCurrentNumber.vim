@@ -9,6 +9,12 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.11.006	11-Mar-2015	:Cgo and :Lgo take [!] to behave like g<C-Q>,
+"				i.e. jump back to the last error instead of
+"				aborting. This is helpful because g<C-Q> only
+"				crudely distinguishes between location and
+"				quickfix list, and both may be in use. Thanks to
+"				Enno Nagel for the suggestion.
 "   1.10.005	08-Mar-2015	QuickFixCurrentNumber#Go() takes another
 "				a:isFallbackToLast argument to support g<C-Q>
 "				jumping back to the last error.
@@ -31,8 +37,8 @@ let g:loaded_QuickFixCurrentNumber = 1
 command! -bar Cnr call QuickFixCurrentNumber#Print(0)
 command! -bar Lnr call QuickFixCurrentNumber#Print(1)
 
-command! -bar Cgo call QuickFixCurrentNumber#Go(1, 0, 0)
-command! -bar Lgo call QuickFixCurrentNumber#Go(1, 0, 1)
+command! -bar -bang Cgo call QuickFixCurrentNumber#Go(1, <bang>0, 0)
+command! -bar -bang Lgo call QuickFixCurrentNumber#Go(1, <bang>0, 1)
 
 
 "- mappings --------------------------------------------------------------------
