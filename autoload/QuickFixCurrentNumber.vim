@@ -9,6 +9,12 @@
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
 "
 " REVISION	DATE		REMARKS
+"   1.11.007	11-Mar-2015	BUG: Script errors when jump mappings like ]q
+"				are executed in a quickfix / location list. Need
+"				to populate the bufferQflist property in the
+"				returned result and tweak the check in
+"				QuickFixCurrentNumber#Next(). Thanks to Enno
+"				Nagel for reporting this.
 "   1.10.006	08-Mar-2015	Add a:isFallbackToLast argument to fallback to
 "				the last error location in case the cursor is
 "				already behind all of them.
@@ -105,7 +111,7 @@ endfunction
 function! s:CheckAndGetNumber( isLocationList, isPrintErrors, isFallbackToLast )
     if &l:buftype ==# 'quickfix'
 	call ingo#msg#ErrorMsg('Already in quickfix')
-	return {'nr': 0}
+	return {'nr': 0, 'bufferQflist': []}
     endif
 
     let l:result = s:GetNumber(a:isLocationList ? getloclist(0) : getqflist(), a:isFallbackToLast)
@@ -160,8 +166,12 @@ endfunction
 
 function! QuickFixCurrentNumber#Next( count, isLocationList, isBackward )
     let l:result = s:CheckAndGetNumber(a:isLocationList, 0, 0)
+    if l:result.nr == 0 && len(l:result.bufferQflist) == 0
+	return
+    endif
+
     if a:isBackward
-	if l:result.nr == 0 && len(l:result.bufferQflist) > 0
+	if l:result.nr == 0
 	    " There are no more matches after the cursor, so the last match in
 	    " the buffer must be the one before the cursor.
 	    let l:nextIdx = len(l:result.bufferQflist) - a:count
