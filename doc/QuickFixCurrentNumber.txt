@@ -28,7 +28,7 @@ position.
 
 SOURCE									     *
 
-Inspired by the following Stack Overflow question:
+- Inspired by
     http://stackoverflow.com/questions/14778612/jump-to-the-errors-in-the-quickfix-or-location-list-for-the-current-line-in-vim
 
 ==============================================================================
@@ -136,7 +136,7 @@ First published version.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2013-2015 Ingo Karkat
+Copyright: (C) 2013-2019 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
