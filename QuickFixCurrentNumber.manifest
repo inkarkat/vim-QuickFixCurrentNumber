@@ -1,0 +1,3 @@
+autoload/QuickFixCurrentNumber.vim
+plugin/QuickFixCurrentNumber.vim
+doc/QuickFixCurrentNumber.txt
