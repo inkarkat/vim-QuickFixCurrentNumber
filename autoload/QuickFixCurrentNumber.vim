@@ -3,7 +3,7 @@
 " DEPENDENCIES:
 "   - ingo/err.vim autoload script
 "
-" Copyright: (C) 2013-2015 Ingo Karkat
+" Copyright: (C) 2013-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -80,35 +80,59 @@ function! s:GetBufferQflist( qflist )
 endfunction
 function! s:GetNumber( qflist, isFallbackToLast )
     let l:bufferQflist = s:GetBufferQflist(a:qflist)
-    let l:result = {'isEmpty': len(l:bufferQflist) == 0, 'idx': -1, 'nr': 0, 'isOnEntry': 0, 'bufferQflist': l:bufferQflist}
+    let l:result = {'isEmpty': len(l:bufferQflist) == 0, 'firstIdx': -1, 'firstNr': 0, 'lastIdx': -1, 'lastNr': 0, 'isOnEntry': 0, 'bufferQflist': l:bufferQflist}
 
     for l:idx in range(len(l:bufferQflist))
-	let l:item = l:result.bufferQflist[l:idx]
+	let l:item = l:bufferQflist[l:idx]
 	if l:item.lnum < line('.')
 	    continue    " Before current line (or line not specified).
 	elseif l:item.lnum == line('.') && l:item.col == 0
 	    " The column is not specified. Match entire line; the actual error
 	    " could be anywhere.
-	    let l:result.idx = l:idx
-	    let l:result.nr = l:item.number
+	    let l:result.firstIdx = l:idx
+	    let l:result.firstNr = l:item.number
 	    let l:result.isOnEntry = 1
-	    return l:result
+	    return s:GetLastNumber(l:result)
 	elseif l:item.lnum == line('.') && l:item.col < (l:item.vcol ? vcol('.') : col('.'))
 	    continue    " Before cursor on the current line.
 	endif
 
-	let l:result.idx = l:idx
-	let l:result.nr = l:item.number
+	let l:result.firstIdx = l:idx
+	let l:result.firstNr = l:item.number
 	let l:result.isOnEntry = (l:item.lnum == line('.') && l:item.col == (l:item.vcol ? vcol('.') : col('.')))
-	return l:result
+	return s:GetLastNumber(l:result)
     endfor
 
     if a:isFallbackToLast && ! l:result.isEmpty
-	let l:result.idx = len(l:bufferQflist) - 1
-	let l:result.nr = l:bufferQflist[l:result.idx].number
+	let l:result.lastIdx = len(l:bufferQflist) - 1
+	let l:result.lastNr = l:bufferQflist[l:result.lastIdx].number
+
+	for l:idx in range(l:result.lastIdx, 0, -1)
+	    let l:item = l:bufferQflist[l:idx]
+	    if l:item.lnum != line('.') || l:item.col == 0 || l:item.col != (l:item.vcol ? vcol('.') : col('.'))
+		" Note: Don't include items that don't have a column specified
+		" when going back.
+		break
+	    endif
+	endfor
+	let l:result.firstIdx = l:idx
+	let l:result.firstNr = l:bufferQflist[l:idx].number
     endif
 
     return l:result
+endfunction
+function! s:GetLastNumber( result ) abort
+    for l:idx in range(a:result.firstIdx + 1, len(a:result.bufferQflist) - 1)
+	let l:item = a:result.bufferQflist[l:idx]
+	if l:item.lnum != line('.') || (l:item.col > 0 && l:item.col != (l:item.vcol ? vcol('.') : col('.')))
+	    " Note: Include items that don't have a column specified when going
+	    " forward.
+	    break
+	endif
+    endfor
+    let a:result.lastIdx = l:idx - 1
+    let a:result.lastNr = a:result.bufferQflist[a:result.lastIdx].number
+    return a:result
 endfunction
 
 
@@ -127,7 +151,7 @@ function! s:CheckAndGetNumber( isLocationList, isPrintErrors, isFallbackToLast )
 
     if l:result.isEmpty
 	call ingo#err#Set(a:isLocationList ? 'No location list' : 'No Errors')
-    elseif l:result.nr == 0
+    elseif l:result.firstNr == 0
 	call ingo#err#Set('No more items')
     endif
     return l:result
