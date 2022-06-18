@@ -118,6 +118,16 @@ below).
 ==============================================================================
 HISTORY					       *QuickFixCurrentNumber-history*
 
+1.20	RELEASEME
+- BUG: [q / ]q get stuck if there are multiple errors at one position.
+- :[CL]nr now reports number ranges if there are multiple items at the cursor
+  position.
+- :[CL]go allows [count] to go to following items at the cursor position
+- Robustness: Limit the reported item column to the actual line length to
+  avoid that iteration with [q / ]q gets stuck.
+- FIX: Iteration with reported virtual columns throws "E117: Unknown function:
+  vcol"
+
 1.11	11-Mar-2015
 - :Cgo and :Lgo take [!] to behave like g<C-Q>, i.e. jump back to the last
   error instead of aborting. This is helpful because g<C-Q> only crudely
