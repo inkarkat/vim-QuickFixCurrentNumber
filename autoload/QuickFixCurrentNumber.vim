@@ -106,20 +106,23 @@ function! s:GetNumber( qflist, isFallbackToLast )
     if a:isFallbackToLast && ! l:result.isEmpty
 	let l:result.lastIdx = len(l:bufferQflist) - 1
 	let l:result.lastNr = l:bufferQflist[l:result.lastIdx].number
-
-	for l:idx in range(l:result.lastIdx, 0, -1)
-	    let l:item = l:bufferQflist[l:idx]
-	    if l:item.lnum != line('.') || l:item.col == 0 || l:item.col != (l:item.vcol ? vcol('.') : col('.'))
-		" Note: Don't include items that don't have a column specified
-		" when going back.
-		break
-	    endif
-	endfor
-	let l:result.firstIdx = l:idx
-	let l:result.firstNr = l:bufferQflist[l:idx].number
+	return s:GetFirstNumber(l:result)
     endif
 
     return l:result
+endfunction
+function! s:GetFirstNumber( result ) abort
+    for l:idx in range(a:result.lastIdx, 0, -1)
+	let l:item = a:result.bufferQflist[l:idx]
+	if l:item.lnum != line('.') || l:item.col == 0 || l:item.col != (l:item.vcol ? vcol('.') : col('.'))
+	    " Note: Don't include items that don't have a column specified
+	    " when going back.
+	    break
+	endif
+    endfor
+    let a:result.firstIdx = l:idx
+    let a:result.firstNr = a:result.bufferQflist[l:idx].number
+    return a:result
 endfunction
 function! s:GetLastNumber( result ) abort
     for l:idx in range(a:result.firstIdx + 1, len(a:result.bufferQflist) - 1)
