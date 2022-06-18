@@ -169,12 +169,20 @@ function! QuickFixCurrentNumber#Print( isLocationList )
     return 1
 endfunction
 
-function! QuickFixCurrentNumber#Go( isPrintErrors, isFallbackToLast, ... )
+function! QuickFixCurrentNumber#Go( count, isPrintErrors, isFallbackToLast, ... )
     let l:isLocationList = (a:0 ? a:1 : ! empty(getloclist(0)))
     let l:cmdPrefix = (l:isLocationList ? 'l' : 'c')
-    let l:nr = s:CheckAndGetNumber(l:isLocationList, a:isPrintErrors, a:isFallbackToLast).nr
+    let l:result = s:CheckAndGetNumber(l:isLocationList, a:isPrintErrors, a:isFallbackToLast)
+    let l:nr = l:result.firstNr
     if l:nr <= 0
 	return 0
+    endif
+    if (a:count > 0)
+	let l:idx = l:result.firstIdx + a:count - 1
+	if l:idx > l:result.lastIdx
+	    return 0
+	endif
+	let l:nr = l:result.bufferQflist[l:idx].number
     endif
 
     let l:save_view = winsaveview()

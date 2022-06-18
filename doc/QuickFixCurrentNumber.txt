@@ -38,12 +38,12 @@ USAGE						 *QuickFixCurrentNumber-usage*
 			location list for the current cursor position (or the
 			next item after the cursor).
 						      *:Cgo* *:Lgo* *g_CTRL-Q*
-:Cgo[!], :Lgo[!]	Go to the item in the quickfix / location list for the
-g<C-Q>			current cursor position (or the next item after the
-			cursor). g<C-Q> (and the commands when [!] is given)
-			also jump to the last item if the cursor is after all
-			errors; without [!], the commands then abort with an
-			error.
+:[N]Cgo[!], :[N]Lgo[!]	Go to the [N]'th item in the quickfix / location list
+[N]g<C-Q>		for the current cursor position (or the next item
+			after the cursor). g<C-Q> (and the commands when [!]
+			is given) also jump to the last item if the cursor is
+			after all errors; without [!], the commands then abort
+			with an error.
 							 *[q* *]q* *g[q* *g]q*
 [q / ]q			Go to [count] previous / next start of an error in the
 			current buffer.

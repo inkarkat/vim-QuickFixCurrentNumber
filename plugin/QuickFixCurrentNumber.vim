@@ -4,7 +4,7 @@
 "   - QuickFixCurrentNumber.vim autoload script
 "   - ingo/err.vim autoload script
 "
-" Copyright: (C) 2013-2015 Ingo Karkat
+" Copyright: (C) 2013-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
@@ -44,13 +44,13 @@ let g:loaded_QuickFixCurrentNumber = 1
 command! -bar Cnr if ! QuickFixCurrentNumber#Print(0) | echoerr ingo#err#Get() | endif
 command! -bar Lnr if ! QuickFixCurrentNumber#Print(1) | echoerr ingo#err#Get() | endif
 
-command! -bar -bang Cgo if ! QuickFixCurrentNumber#Go(1, <bang>0, 0) | echoerr ingo#err#Get() | endif
-command! -bar -bang Lgo if ! QuickFixCurrentNumber#Go(1, <bang>0, 1) | echoerr ingo#err#Get() | endif
+command! -bar -bang -count=1 Cgo if ! QuickFixCurrentNumber#Go(<count>, 1, <bang>0, 0) | echoerr ingo#err#Get() | endif
+command! -bar -bang -count=1 Lgo if ! QuickFixCurrentNumber#Go(<count>, 1, <bang>0, 1) | echoerr ingo#err#Get() | endif
 
 
 "- mappings --------------------------------------------------------------------
 
-nnoremap <silent> <Plug>(QuickFixCurrentNumberGo) :<C-u>if ! QuickFixCurrentNumber#Go(0, 1)<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
+nnoremap <silent> <Plug>(QuickFixCurrentNumberGo) :<C-u>if ! QuickFixCurrentNumber#Go(v:count1, 0, 1)<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
 
 nnoremap <silent> <Plug>(QuickFixCurrentNumberQNext)  :<C-u>if ! QuickFixCurrentNumber#Next(v:count1, 0, 0)<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
 nnoremap <silent> <Plug>(QuickFixCurrentNumberQPrev)  :<C-u>if ! QuickFixCurrentNumber#Next(v:count1, 0, 1)<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
