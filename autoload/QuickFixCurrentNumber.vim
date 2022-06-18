@@ -157,13 +157,15 @@ function! s:CheckAndGetNumber( isLocationList, isPrintErrors, isFallbackToLast )
     return l:result
 endfunction
 function! QuickFixCurrentNumber#Print( isLocationList )
-    let l:nr = s:CheckAndGetNumber(a:isLocationList, 1, 0).nr
-    if l:nr <= 0
+    let l:result = s:CheckAndGetNumber(a:isLocationList, 1, 0)
+    let l:firstNr = l:result.firstNr
+    if l:firstNr <= 0
 	return 0
     endif
 
     let l:qflist = (a:isLocationList ? getloclist(0) : getqflist())
-    echomsg printf('(%d of %d): %s', l:nr, len(l:qflist), get(l:qflist[l:nr - 1], 'text', ''))
+    let l:nrRange = (l:firstNr == l:result.lastNr ? '' : printf('-%d', l:result.lastNr))
+    echomsg printf('(%d%s of %d): %s', l:firstNr, l:nrRange, len(l:qflist), get(l:qflist[l:firstNr - 1], 'text', ''))
     return 1
 endfunction
 

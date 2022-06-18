@@ -34,7 +34,7 @@ SOURCE									     *
 ==============================================================================
 USAGE						 *QuickFixCurrentNumber-usage*
 								 *:Cnr* *:Lnr*
-:Cnr, :Lnr		Print the number of the item in the quickfix /
+:Cnr, :Lnr		Print the number(s) of the item(s) in the quickfix /
 			location list for the current cursor position (or the
 			next item after the cursor).
 						      *:Cgo* *:Lgo* *g_CTRL-Q*
