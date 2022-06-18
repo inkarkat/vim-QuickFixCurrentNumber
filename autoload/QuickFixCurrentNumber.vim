@@ -108,7 +108,8 @@ function! s:GetFirstNumber( result ) abort
     return a:result
 endfunction
 function! s:GetLastNumber( result ) abort
-    for l:idx in range(a:result.firstIdx + 1, len(a:result.bufferQflist) - 1)
+    let l:idx = a:result.firstIdx + 1
+    for l:idx in range(l:idx, len(a:result.bufferQflist) - 1)
 	let l:item = a:result.bufferQflist[l:idx]
 	if ! (s:IsCursorOnItem(l:item) || (l:item.lnum == line('.') && l:item.col == 0))
 	    " Note: Include items that don't have a column specified when going
