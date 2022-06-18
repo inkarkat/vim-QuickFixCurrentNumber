@@ -86,6 +86,10 @@ function! s:IsCursorOnItem( item ) abort
     let [l:itemColumn, l:cursorColumn] = s:GetTruncatedItemColAndCurrent(a:item)
     return (a:item.lnum == line('.') && l:itemColumn == l:cursorColumn)
 endfunction
+function! s:IsCursorBeforeItemInThatLine( item ) abort
+    let [l:itemColumn, l:cursorColumn] = s:GetTruncatedItemColAndCurrent(a:item)
+    return (a:item.lnum == line('.') && l:itemColumn < l:cursorColumn)
+endfunction
 function! s:GetNumber( qflist, isFallbackToLast )
     let l:bufferQflist = s:GetBufferQflist(a:qflist)
     let l:result = {'isEmpty': len(l:bufferQflist) == 0, 'firstIdx': -1, 'firstNr': 0, 'lastIdx': -1, 'lastNr': 0, 'isOnEntry': 0, 'bufferQflist': l:bufferQflist}
@@ -101,7 +105,7 @@ function! s:GetNumber( qflist, isFallbackToLast )
 	    let l:result.firstNr = l:item.number
 	    let l:result.isOnEntry = 1
 	    return s:GetLastNumber(l:result)
-	elseif l:item.lnum == line('.') && l:item.col < (l:item.vcol ? vcol('.') : col('.'))
+	elseif s:IsCursorBeforeItemInThatLine(l:item)
 	    continue    " Before cursor on the current line.
 	endif
 
