@@ -1,41 +1,12 @@
 " QuickFixCurrentNumber.vim: Locate the quickfix item at the cursor position.
 "
 " DEPENDENCIES:
-"   - ingo/err.vim autoload script
+"   - ingo-library.vim plugin
 "
 " Copyright: (C) 2013-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
-"
-" REVISION	DATE		REMARKS
-"   1.11.007	11-Mar-2015	BUG: Script errors when jump mappings like ]q
-"				are executed in a quickfix / location list. Need
-"				to populate the bufferQflist property in the
-"				returned result and tweak the check in
-"				QuickFixCurrentNumber#Next(). Thanks to Enno
-"				Nagel for reporting this.
-"				Use ingo/err.vim for error reporting. Move the
-"				beep in s:GotoIdx() into the mappings, to be
-"				consistent with <Plug>(QuickFixCurrentNumberGo),
-"				and have a clean separation.
-"   1.10.006	08-Mar-2015	Add a:isFallbackToLast argument to fallback to
-"				the last error location in case the cursor is
-"				already behind all of them.
-"   1.01.005	07-Feb-2015	Factor out
-"				ingo#window#quickfix#TranslateVirtualColToByteCount()
-"				into ingo-library.
-"   1.00.004	19-Feb-2013	Don't print errors for g<C-q> mapping.
-"   1.00.003	11-Feb-2013	Factor out common checks and errors to
-"				s:CheckAndGetNumber().
-"				Implement moving to next / previous error in
-"				current buffer through
-"				QuickFixCurrentNumber#Next().
-"	002	09-Feb-2013	Split off autoload script and documentation.
-"				Keep the existing (numbered) order when one item
-"				doesn't have a line, or when there's equality in
-"				columns.
-"	001	08-Feb-2013	file creation
 
 function! s:KeepOrder( i1, i2 )
     return a:i1.number > a:i2.number ? 1 : -1

@@ -1,37 +1,12 @@
 " QuickFixCurrentNumber.vim: Locate the quickfix item at the cursor position.
 "
 " DEPENDENCIES:
-"   - QuickFixCurrentNumber.vim autoload script
-"   - ingo/err.vim autoload script
+"   - ingo-library.vim plugin
 "
 " Copyright: (C) 2013-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
-"
-" REVISION	DATE		REMARKS
-"   1.11.006	11-Mar-2015	:Cgo and :Lgo take [!] to behave like g<C-Q>,
-"				i.e. jump back to the last error instead of
-"				aborting. This is helpful because g<C-Q> only
-"				crudely distinguishes between location and
-"				quickfix list, and both may be in use. Thanks to
-"				Enno Nagel for the suggestion.
-"				Allow to disable all default mappings via
-"				g:no_QuickFixCurrentNumber_maps.
-"				Use ingo/err.vim for error reporting. Move the
-"				beep in s:GotoIdx() into the mappings, to be
-"				consistent with <Plug>(QuickFixCurrentNumberGo),
-"				and have a clean separation.
-"   1.10.005	08-Mar-2015	QuickFixCurrentNumber#Go() takes another
-"				a:isFallbackToLast argument to support g<C-Q>
-"				jumping back to the last error.
-"   1.00.004	19-Feb-2013	Don't print errors for g<C-q> mapping.
-"   1.00.003	11-Feb-2013	Implement moving to next / previous error in
-"				current buffer with ]q etc.
-"				Add :Cgo / :Lgo command alternative to g<C-Q>
-"				mapping.
-"	002	09-Feb-2013	Split off autoload script and documentation.
-"	001	08-Feb-2013	file creation
 
 " Avoid installing twice or when in unsupported Vim version.
 if exists('g:loaded_QuickFixCurrentNumber') || (v:version < 700)
