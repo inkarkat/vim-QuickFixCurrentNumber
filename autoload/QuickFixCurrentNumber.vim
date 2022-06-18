@@ -128,7 +128,7 @@ function! s:CheckAndGetNumber( isLocationList, isPrintErrors, isFallbackToLast )
 
     if &l:buftype ==# 'quickfix'
 	call ingo#err#Set('Already in quickfix')
-	return {'nr': 0, 'bufferQflist': []}
+	return {'firstNr': 0, 'lastNr': 0, 'bufferQflist': []}
     endif
 
     let l:result = s:GetNumber(a:isLocationList ? getloclist(0) : getqflist(), a:isFallbackToLast)
