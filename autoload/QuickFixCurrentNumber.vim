@@ -79,7 +79,8 @@ function! s:GetBufferQflist( qflist )
     return sort(filter(copy(a:qflist), 'v:val.bufnr ==' . bufnr('')), 's:QflistSort')
 endfunction
 function! s:IsCursorOnItem( item ) abort
-    return (a:item.lnum == line('.') && a:item.col == (a:item.vcol ? vcol('.') : col('.')))
+    let l:referenceValue = (a:item.vcol ? vcol('.') : col('.'))
+    return (a:item.lnum == line('.') && a:item.col == l:referenceValue)
 endfunction
 function! s:GetNumber( qflist, isFallbackToLast )
     let l:bufferQflist = s:GetBufferQflist(a:qflist)
