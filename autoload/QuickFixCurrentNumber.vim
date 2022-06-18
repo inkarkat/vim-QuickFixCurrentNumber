@@ -211,24 +211,29 @@ function! s:GotoIdx( isLocationList, bufferQflist, idx )
 endfunction
 
 function! QuickFixCurrentNumber#Next( count, isLocationList, isBackward )
-    let l:result = s:CheckAndGetNumber(a:isLocationList, 0, 0)
-    if l:result.nr == 0 && len(l:result.bufferQflist) == 0
-	return 0
-    endif
-
-    if a:isBackward
-	if l:result.nr == 0
-	    " There are no more matches after the cursor, so the last match in
-	    " the buffer must be the one before the cursor.
-	    let l:nextIdx = len(l:result.bufferQflist) - a:count
-	else
-	    let l:nextIdx = l:result.idx - a:count
+    for l:count in range(a:count)
+	let l:result = s:CheckAndGetNumber(a:isLocationList, 0, 0)
+	if l:result.firstNr == 0 && len(l:result.bufferQflist) == 0
+	    return 0
 	endif
-    else
-	let l:nextIdx = l:result.idx + a:count - (l:result.isOnEntry ? 0 : 1)
-    endif
 
-    return s:GotoIdx(a:isLocationList, l:result.bufferQflist, l:nextIdx)
+	if a:isBackward
+	    if l:result.firstNr == 0
+		" There are no more matches after the cursor, so the last match in
+		" the buffer must be the one before the cursor.
+		let l:idx = len(l:result.bufferQflist) - 1
+	    else
+		let l:idx = l:result.firstIdx - 1
+	    endif
+	else
+	    let l:idx = (l:result.isOnEntry ? l:result.lastIdx + 1 : l:result.firstIdx)
+	endif
+
+	if ! s:GotoIdx(a:isLocationList, l:result.bufferQflist, l:idx)
+	    return 0
+	endif
+    endfor
+    return 1
 endfunction
 function! QuickFixCurrentNumber#Border( count, isLocationList, isEnd )
     if &l:buftype ==# 'quickfix'
