@@ -78,9 +78,13 @@ function! s:GetBufferQflist( qflist )
 
     return sort(filter(copy(a:qflist), 'v:val.bufnr ==' . bufnr('')), 's:QflistSort')
 endfunction
-function! s:IsCursorOnItem( item ) abort
+function! s:GetTruncatedItemColAndCurrent( item ) abort
     let [l:referenceValue, l:maxValue] = (a:item.vcol ? [vcol('.'), vcol('$')] : [col('.'), col('$')])
-    return (a:item.lnum == line('.') && min([a:item.col, l:maxValue]) == l:referenceValue)
+    return [min([a:item.col, l:maxValue]), l:referenceValue]
+endfunction
+function! s:IsCursorOnItem( item ) abort
+    let [l:itemColumn, l:cursorColumn] = s:GetTruncatedItemColAndCurrent(a:item)
+    return (a:item.lnum == line('.') && l:itemColumn == l:cursorColumn)
 endfunction
 function! s:GetNumber( qflist, isFallbackToLast )
     let l:bufferQflist = s:GetBufferQflist(a:qflist)
