@@ -245,6 +245,13 @@ function! QuickFixCurrentNumber#Next( count, isLocationList, isBackward )
 	    return 0
 	endif
     endfor
+
+    if a:count > 1
+	" XXX: If multiple items have been iterated over, the QuickFixLine
+	" highlighting of previous items persist (in Vim 8.2.4765).
+	redraw!
+    endif
+
     return 1
 endfunction
 function! QuickFixCurrentNumber#Border( count, isLocationList, isEnd )
