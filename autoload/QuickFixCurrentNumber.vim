@@ -78,6 +78,9 @@ function! s:GetBufferQflist( qflist )
 
     return sort(filter(copy(a:qflist), 'v:val.bufnr ==' . bufnr('')), 's:QflistSort')
 endfunction
+function! s:IsCursorOnItem( item ) abort
+    return (a:item.lnum == line('.') && a:item.col == (a:item.vcol ? vcol('.') : col('.')))
+endfunction
 function! s:GetNumber( qflist, isFallbackToLast )
     let l:bufferQflist = s:GetBufferQflist(a:qflist)
     let l:result = {'isEmpty': len(l:bufferQflist) == 0, 'firstIdx': -1, 'firstNr': 0, 'lastIdx': -1, 'lastNr': 0, 'isOnEntry': 0, 'bufferQflist': l:bufferQflist}
@@ -99,7 +102,7 @@ function! s:GetNumber( qflist, isFallbackToLast )
 
 	let l:result.firstIdx = l:idx
 	let l:result.firstNr = l:item.number
-	let l:result.isOnEntry = (l:item.lnum == line('.') && l:item.col == (l:item.vcol ? vcol('.') : col('.')))
+	let l:result.isOnEntry = s:IsCursorOnItem(l:item)
 	return s:GetLastNumber(l:result)
     endfor
 
@@ -114,7 +117,7 @@ endfunction
 function! s:GetFirstNumber( result ) abort
     for l:idx in range(a:result.lastIdx, 0, -1)
 	let l:item = a:result.bufferQflist[l:idx]
-	if l:item.lnum != line('.') || l:item.col == 0 || l:item.col != (l:item.vcol ? vcol('.') : col('.'))
+	if ! s:IsCursorOnItem(l:item) || l:item.col == 0
 	    " Note: Don't include items that don't have a column specified
 	    " when going back.
 	    break
@@ -127,7 +130,7 @@ endfunction
 function! s:GetLastNumber( result ) abort
     for l:idx in range(a:result.firstIdx + 1, len(a:result.bufferQflist) - 1)
 	let l:item = a:result.bufferQflist[l:idx]
-	if l:item.lnum != line('.') || (l:item.col > 0 && l:item.col != (l:item.vcol ? vcol('.') : col('.')))
+	if ! (s:IsCursorOnItem(l:item) || (l:item.lnum == line('.') && l:item.col == 0))
 	    " Note: Include items that don't have a column specified when going
 	    " forward.
 	    break
