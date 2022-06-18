@@ -115,6 +115,8 @@ HISTORY
   avoid that iteration with [q / ]q gets stuck.
 - FIX: Iteration with reported virtual columns throws "E117: Unknown function:
   vcol"
+- [q / ]q / g&lt;C-Q&gt; open a closed fold after the jump to make the target line /
+  quickfix entry visible.
 
 ##### 1.11    11-Mar-2015
 - :Cgo and :Lgo take [!] to behave like g&lt;C-Q&gt;, i.e. jump back to the last

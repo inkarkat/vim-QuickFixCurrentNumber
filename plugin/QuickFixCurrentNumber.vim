@@ -25,17 +25,17 @@ command! -bar -bang -count=1 Lgo if ! QuickFixCurrentNumber#Go(<count>, 1, <bang
 
 "- mappings --------------------------------------------------------------------
 
-nnoremap <silent> <Plug>(QuickFixCurrentNumberGo) :<C-u>if ! QuickFixCurrentNumber#Go(v:count1, 0, 1)<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
+nnoremap <silent> <Plug>(QuickFixCurrentNumberGo) :<C-u>if QuickFixCurrentNumber#Go(v:count1, 0, 1)<Bar>execute 'normal! zv'<Bar>else<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
 
-nnoremap <silent> <Plug>(QuickFixCurrentNumberQNext)  :<C-u>if ! QuickFixCurrentNumber#Next(v:count1, 0, 0)<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
-nnoremap <silent> <Plug>(QuickFixCurrentNumberQPrev)  :<C-u>if ! QuickFixCurrentNumber#Next(v:count1, 0, 1)<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
-nnoremap <silent> <Plug>(QuickFixCurrentNumberLNext)  :<C-u>if ! QuickFixCurrentNumber#Next(v:count1, 1, 0)<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
-nnoremap <silent> <Plug>(QuickFixCurrentNumberLPrev)  :<C-u>if ! QuickFixCurrentNumber#Next(v:count1, 1, 1)<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
+nnoremap <silent> <Plug>(QuickFixCurrentNumberQNext)  :<C-u>if QuickFixCurrentNumber#Next(v:count1, 0, 0)<Bar>execute 'normal! zv'<Bar>else<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
+nnoremap <silent> <Plug>(QuickFixCurrentNumberQPrev)  :<C-u>if QuickFixCurrentNumber#Next(v:count1, 0, 1)<Bar>execute 'normal! zv'<Bar>else<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
+nnoremap <silent> <Plug>(QuickFixCurrentNumberLNext)  :<C-u>if QuickFixCurrentNumber#Next(v:count1, 1, 0)<Bar>execute 'normal! zv'<Bar>else<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
+nnoremap <silent> <Plug>(QuickFixCurrentNumberLPrev)  :<C-u>if QuickFixCurrentNumber#Next(v:count1, 1, 1)<Bar>execute 'normal! zv'<Bar>else<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
 
-nnoremap <silent> <Plug>(QuickFixCurrentNumberQFirst) :<C-u>if ! QuickFixCurrentNumber#Border(v:count1, 0, 0)<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
-nnoremap <silent> <Plug>(QuickFixCurrentNumberQLast)  :<C-u>if ! QuickFixCurrentNumber#Border(v:count1, 0, 1)<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
-nnoremap <silent> <Plug>(QuickFixCurrentNumberLFirst) :<C-u>if ! QuickFixCurrentNumber#Border(v:count1, 1, 0)<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
-nnoremap <silent> <Plug>(QuickFixCurrentNumberLLast)  :<C-u>if ! QuickFixCurrentNumber#Border(v:count1, 1, 1)<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
+nnoremap <silent> <Plug>(QuickFixCurrentNumberQFirst) :<C-u>if QuickFixCurrentNumber#Border(v:count1, 0, 0)<Bar>execute 'normal! zv'<Bar>else<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
+nnoremap <silent> <Plug>(QuickFixCurrentNumberQLast)  :<C-u>if QuickFixCurrentNumber#Border(v:count1, 0, 1)<Bar>execute 'normal! zv'<Bar>else<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
+nnoremap <silent> <Plug>(QuickFixCurrentNumberLFirst) :<C-u>if QuickFixCurrentNumber#Border(v:count1, 1, 0)<Bar>execute 'normal! zv'<Bar>else<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
+nnoremap <silent> <Plug>(QuickFixCurrentNumberLLast)  :<C-u>if QuickFixCurrentNumber#Border(v:count1, 1, 1)<Bar>execute 'normal! zv'<Bar>else<Bar>execute "normal! \<lt>C-\>\<lt>C-n>\<lt>Esc>"<Bar>if ingo#err#IsSet()<Bar>echoerr ingo#err#Get()<Bar>endif<Bar>endif<CR>
 
 
 if ! exists('g:no_QuickFixCurrentNumber_maps')
