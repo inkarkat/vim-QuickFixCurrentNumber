@@ -1,41 +1,12 @@
 " QuickFixCurrentNumber.vim: Locate the quickfix item at the cursor position.
 "
 " DEPENDENCIES:
-"   - ingo/err.vim autoload script
+"   - ingo-library.vim plugin
 "
-" Copyright: (C) 2013-2015 Ingo Karkat
+" Copyright: (C) 2013-2022 Ingo Karkat
 "   The VIM LICENSE applies to this script; see ':help copyright'.
 "
 " Maintainer:	Ingo Karkat <ingo@karkat.de>
-"
-" REVISION	DATE		REMARKS
-"   1.11.007	11-Mar-2015	BUG: Script errors when jump mappings like ]q
-"				are executed in a quickfix / location list. Need
-"				to populate the bufferQflist property in the
-"				returned result and tweak the check in
-"				QuickFixCurrentNumber#Next(). Thanks to Enno
-"				Nagel for reporting this.
-"				Use ingo/err.vim for error reporting. Move the
-"				beep in s:GotoIdx() into the mappings, to be
-"				consistent with <Plug>(QuickFixCurrentNumberGo),
-"				and have a clean separation.
-"   1.10.006	08-Mar-2015	Add a:isFallbackToLast argument to fallback to
-"				the last error location in case the cursor is
-"				already behind all of them.
-"   1.01.005	07-Feb-2015	Factor out
-"				ingo#window#quickfix#TranslateVirtualColToByteCount()
-"				into ingo-library.
-"   1.00.004	19-Feb-2013	Don't print errors for g<C-q> mapping.
-"   1.00.003	11-Feb-2013	Factor out common checks and errors to
-"				s:CheckAndGetNumber().
-"				Implement moving to next / previous error in
-"				current buffer through
-"				QuickFixCurrentNumber#Next().
-"	002	09-Feb-2013	Split off autoload script and documentation.
-"				Keep the existing (numbered) order when one item
-"				doesn't have a line, or when there's equality in
-"				columns.
-"	001	08-Feb-2013	file creation
 
 function! s:KeepOrder( i1, i2 )
     return a:i1.number > a:i2.number ? 1 : -1
@@ -78,37 +49,76 @@ function! s:GetBufferQflist( qflist )
 
     return sort(filter(copy(a:qflist), 'v:val.bufnr ==' . bufnr('')), 's:QflistSort')
 endfunction
+function! s:GetTruncatedItemColAndCurrent( item ) abort
+    let [l:referenceValue, l:maxValue] = (a:item.vcol ? [virtcol('.'), virtcol('$') - 1] : [col('.'), col('$') - 1])
+    return [min([a:item.col, l:maxValue]), l:referenceValue]
+endfunction
+function! s:IsCursorOnItem( item ) abort
+    let [l:itemColumn, l:cursorColumn] = s:GetTruncatedItemColAndCurrent(a:item)
+    return (a:item.lnum == line('.') && l:itemColumn == l:cursorColumn)
+endfunction
+function! s:IsCursorBeforeItemInThatLine( item ) abort
+    let [l:itemColumn, l:cursorColumn] = s:GetTruncatedItemColAndCurrent(a:item)
+    return (a:item.lnum == line('.') && l:itemColumn < l:cursorColumn)
+endfunction
 function! s:GetNumber( qflist, isFallbackToLast )
     let l:bufferQflist = s:GetBufferQflist(a:qflist)
-    let l:result = {'isEmpty': len(l:bufferQflist) == 0, 'idx': -1, 'nr': 0, 'isOnEntry': 0, 'bufferQflist': l:bufferQflist}
+    let l:result = {'isEmpty': len(l:bufferQflist) == 0, 'firstIdx': -1, 'firstNr': 0, 'lastIdx': -1, 'lastNr': 0, 'isOnEntry': 0, 'bufferQflist': l:bufferQflist}
 
     for l:idx in range(len(l:bufferQflist))
-	let l:item = l:result.bufferQflist[l:idx]
+	let l:item = l:bufferQflist[l:idx]
 	if l:item.lnum < line('.')
 	    continue    " Before current line (or line not specified).
 	elseif l:item.lnum == line('.') && l:item.col == 0
 	    " The column is not specified. Match entire line; the actual error
 	    " could be anywhere.
-	    let l:result.idx = l:idx
-	    let l:result.nr = l:item.number
+	    let l:result.firstIdx = l:idx
+	    let l:result.firstNr = l:item.number
 	    let l:result.isOnEntry = 1
-	    return l:result
-	elseif l:item.lnum == line('.') && l:item.col < (l:item.vcol ? vcol('.') : col('.'))
+	    return s:GetLastNumber(l:result)
+	elseif s:IsCursorBeforeItemInThatLine(l:item)
 	    continue    " Before cursor on the current line.
 	endif
 
-	let l:result.idx = l:idx
-	let l:result.nr = l:item.number
-	let l:result.isOnEntry = (l:item.lnum == line('.') && l:item.col == (l:item.vcol ? vcol('.') : col('.')))
-	return l:result
+	let l:result.firstIdx = l:idx
+	let l:result.firstNr = l:item.number
+	let l:result.isOnEntry = s:IsCursorOnItem(l:item)
+	return s:GetLastNumber(l:result)
     endfor
 
     if a:isFallbackToLast && ! l:result.isEmpty
-	let l:result.idx = len(l:bufferQflist) - 1
-	let l:result.nr = l:bufferQflist[l:result.idx].number
+	let l:result.lastIdx = len(l:bufferQflist) - 1
+	let l:result.lastNr = l:bufferQflist[l:result.lastIdx].number
+	return s:GetFirstNumber(l:result)
     endif
 
     return l:result
+endfunction
+function! s:GetFirstNumber( result ) abort
+    for l:idx in range(a:result.lastIdx, 0, -1)
+	let l:item = a:result.bufferQflist[l:idx]
+	if ! s:IsCursorOnItem(l:item) || l:item.col == 0
+	    " Note: Don't include items that don't have a column specified
+	    " when going back.
+	    break
+	endif
+    endfor
+    let a:result.firstIdx = l:idx
+    let a:result.firstNr = a:result.bufferQflist[l:idx].number
+    return a:result
+endfunction
+function! s:GetLastNumber( result ) abort
+    for l:idx in range(a:result.firstIdx + 1, len(a:result.bufferQflist) - 1)
+	let l:item = a:result.bufferQflist[l:idx]
+	if ! (s:IsCursorOnItem(l:item) || (l:item.lnum == line('.') && l:item.col == 0))
+	    " Note: Include items that don't have a column specified when going
+	    " forward.
+	    break
+	endif
+    endfor
+    let a:result.lastIdx = l:idx - 1
+    let a:result.lastNr = a:result.bufferQflist[a:result.lastIdx].number
+    return a:result
 endfunction
 
 
@@ -127,28 +137,38 @@ function! s:CheckAndGetNumber( isLocationList, isPrintErrors, isFallbackToLast )
 
     if l:result.isEmpty
 	call ingo#err#Set(a:isLocationList ? 'No location list' : 'No Errors')
-    elseif l:result.nr == 0
+    elseif l:result.firstNr == 0
 	call ingo#err#Set('No more items')
     endif
     return l:result
 endfunction
 function! QuickFixCurrentNumber#Print( isLocationList )
-    let l:nr = s:CheckAndGetNumber(a:isLocationList, 1, 0).nr
-    if l:nr <= 0
+    let l:result = s:CheckAndGetNumber(a:isLocationList, 1, 0)
+    let l:firstNr = l:result.firstNr
+    if l:firstNr <= 0
 	return 0
     endif
 
     let l:qflist = (a:isLocationList ? getloclist(0) : getqflist())
-    echomsg printf('(%d of %d): %s', l:nr, len(l:qflist), get(l:qflist[l:nr - 1], 'text', ''))
+    let l:nrRange = (l:firstNr == l:result.lastNr ? '' : printf('-%d', l:result.lastNr))
+    echomsg printf('(%d%s of %d): %s', l:firstNr, l:nrRange, len(l:qflist), get(l:qflist[l:firstNr - 1], 'text', ''))
     return 1
 endfunction
 
-function! QuickFixCurrentNumber#Go( isPrintErrors, isFallbackToLast, ... )
+function! QuickFixCurrentNumber#Go( count, isPrintErrors, isFallbackToLast, ... )
     let l:isLocationList = (a:0 ? a:1 : ! empty(getloclist(0)))
     let l:cmdPrefix = (l:isLocationList ? 'l' : 'c')
-    let l:nr = s:CheckAndGetNumber(l:isLocationList, a:isPrintErrors, a:isFallbackToLast).nr
+    let l:result = s:CheckAndGetNumber(l:isLocationList, a:isPrintErrors, a:isFallbackToLast)
+    let l:nr = l:result.firstNr
     if l:nr <= 0
 	return 0
+    endif
+    if (a:count > 0)
+	let l:idx = l:result.firstIdx + a:count - 1
+	if l:idx > l:result.lastIdx
+	    return 0
+	endif
+	let l:nr = l:result.bufferQflist[l:idx].number
     endif
 
     let l:save_view = winsaveview()
@@ -174,24 +194,36 @@ function! s:GotoIdx( isLocationList, bufferQflist, idx )
 endfunction
 
 function! QuickFixCurrentNumber#Next( count, isLocationList, isBackward )
-    let l:result = s:CheckAndGetNumber(a:isLocationList, 0, 0)
-    if l:result.nr == 0 && len(l:result.bufferQflist) == 0
-	return 0
-    endif
-
-    if a:isBackward
-	if l:result.nr == 0
-	    " There are no more matches after the cursor, so the last match in
-	    " the buffer must be the one before the cursor.
-	    let l:nextIdx = len(l:result.bufferQflist) - a:count
-	else
-	    let l:nextIdx = l:result.idx - a:count
+    for l:count in range(a:count)
+	let l:result = s:CheckAndGetNumber(a:isLocationList, 0, 0)
+	if l:result.firstNr == 0 && len(l:result.bufferQflist) == 0
+	    return 0
 	endif
-    else
-	let l:nextIdx = l:result.idx + a:count - (l:result.isOnEntry ? 0 : 1)
+
+	if a:isBackward
+	    if l:result.firstNr == 0
+		" There are no more matches after the cursor, so the last match in
+		" the buffer must be the one before the cursor.
+		let l:idx = len(l:result.bufferQflist) - 1
+	    else
+		let l:idx = l:result.firstIdx - 1
+	    endif
+	else
+	    let l:idx = (l:result.isOnEntry ? l:result.lastIdx + 1 : l:result.firstIdx)
+	endif
+
+	if ! s:GotoIdx(a:isLocationList, l:result.bufferQflist, l:idx)
+	    return 0
+	endif
+    endfor
+
+    if a:count > 1
+	" XXX: If multiple items have been iterated over, the QuickFixLine
+	" highlighting of previous items persist (in Vim 8.2.4765).
+	redraw!
     endif
 
-    return s:GotoIdx(a:isLocationList, l:result.bufferQflist, l:nextIdx)
+    return 1
 endfunction
 function! QuickFixCurrentNumber#Border( count, isLocationList, isEnd )
     if &l:buftype ==# 'quickfix'

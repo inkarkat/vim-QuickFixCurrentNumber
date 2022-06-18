@@ -24,16 +24,16 @@ position.
 USAGE
 ------------------------------------------------------------------------------
 
-    :Cnr, :Lnr              Print the number of the item in the quickfix /
+    :Cnr, :Lnr              Print the number(s) of the item(s) in the quickfix /
                             location list for the current cursor position (or the
                             next item after the cursor).
 
-    :Cgo[!], :Lgo[!]        Go to the item in the quickfix / location list for the
-    g<C-Q>                  current cursor position (or the next item after the
-                            cursor). g<C-Q> (and the commands when [!] is given)
-                            also jump to the last item if the cursor is after all
-                            errors; without [!], the commands then abort with an
-                            error.
+    :[N]Cgo[!], :[N]Lgo[!]  Go to the [N]'th item in the quickfix / location list
+    [N]g<C-Q>               for the current cursor position (or the next item
+                            after the cursor). g<C-Q> (and the commands when [!]
+                            is given) also jump to the last item if the cursor is
+                            after all errors; without [!], the commands then abort
+                            with an error.
 
     [q / ]q                 Go to [count] previous / next start of an error in the
                             current buffer.
@@ -105,6 +105,16 @@ below).
 
 HISTORY
 ------------------------------------------------------------------------------
+
+##### 1.20    RELEASEME
+- BUG: [q / ]q get stuck if there are multiple errors at one position.
+- :[CL]nr now reports number ranges if there are multiple items at the cursor
+  position.
+- :[CL]go allows [count] to go to following items at the cursor position
+- Robustness: Limit the reported item column to the actual line length to
+  avoid that iteration with [q / ]q gets stuck.
+- FIX: Iteration with reported virtual columns throws "E117: Unknown function:
+  vcol"
 
 ##### 1.11    11-Mar-2015
 - :Cgo and :Lgo take [!] to behave like g&lt;C-Q&gt;, i.e. jump back to the last
