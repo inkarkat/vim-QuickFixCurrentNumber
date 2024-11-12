@@ -106,7 +106,7 @@ below).
 HISTORY
 ------------------------------------------------------------------------------
 
-##### 1.20    RELEASEME
+##### 1.20    12-Nov-2024
 - BUG: [q / ]q get stuck if there are multiple errors at one position.
 - :[CL]nr now reports number ranges if there are multiple items at the cursor
   position.
@@ -150,7 +150,7 @@ __You need to update to ingo-library ([vimscript #4433](http://www.vim.org/scrip
 - Started development.
 
 ------------------------------------------------------------------------------
-Copyright: (C) 2013-2022 Ingo Karkat -
+Copyright: (C) 2013-2024 Ingo Karkat -
 The [VIM LICENSE](http://vimdoc.sourceforge.net/htmldoc/uganda.html#license) applies to this plugin.
 
 Maintainer:     Ingo Karkat &lt;ingo@karkat.de&gt;

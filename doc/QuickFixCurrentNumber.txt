@@ -118,7 +118,7 @@ below).
 ==============================================================================
 HISTORY					       *QuickFixCurrentNumber-history*
 
-1.20	RELEASEME
+1.20	12-Nov-2024
 - BUG: [q / ]q get stuck if there are multiple errors at one position.
 - :[CL]nr now reports number ranges if there are multiple items at the cursor
   position.
@@ -160,7 +160,7 @@ First published version.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2013-2022 Ingo Karkat
+Copyright: (C) 2013-2024 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
