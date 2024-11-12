@@ -34,16 +34,16 @@ SOURCE									     *
 ==============================================================================
 USAGE						 *QuickFixCurrentNumber-usage*
 								 *:Cnr* *:Lnr*
-:Cnr, :Lnr		Print the number of the item in the quickfix /
+:Cnr, :Lnr		Print the number(s) of the item(s) in the quickfix /
 			location list for the current cursor position (or the
 			next item after the cursor).
 						      *:Cgo* *:Lgo* *g_CTRL-Q*
-:Cgo[!], :Lgo[!]	Go to the item in the quickfix / location list for the
-g<C-Q>			current cursor position (or the next item after the
-			cursor). g<C-Q> (and the commands when [!] is given)
-			also jump to the last item if the cursor is after all
-			errors; without [!], the commands then abort with an
-			error.
+:[N]Cgo[!], :[N]Lgo[!]	Go to the [N]'th item in the quickfix / location list
+[N]g<C-Q>		for the current cursor position (or the next item
+			after the cursor). g<C-Q> (and the commands when [!]
+			is given) also jump to the last item if the cursor is
+			after all errors; without [!], the commands then abort
+			with an error.
 							 *[q* *]q* *g[q* *g]q*
 [q / ]q			Go to [count] previous / next start of an error in the
 			current buffer.
@@ -58,10 +58,16 @@ g[l / g]l		Go to [count] first / last location list item in the
 ==============================================================================
 INSTALLATION				  *QuickFixCurrentNumber-installation*
 
-This script is packaged as a |vimball|. If you have the "gunzip" decompressor
-in your PATH, simply edit the *.vmb.gz package in Vim; otherwise, decompress
-the archive first, e.g. using WinZip. Inside Vim, install by sourcing the
-vimball or via the |:UseVimball| command. >
+The code is hosted in a Git repo at
+    https://github.com/inkarkat/vim-QuickFixCurrentNumber
+You can use your favorite plugin manager, or "git clone" into a directory used
+for Vim |packages|. Releases are on the "stable" branch, the latest unstable
+development snapshot on "master".
+
+This script is also packaged as a |vimball|. If you have the "gunzip"
+decompressor in your PATH, simply edit the *.vmb.gz package in Vim; otherwise,
+decompress the archive first, e.g. using WinZip. Inside Vim, install by
+sourcing the vimball or via the |:UseVimball| command. >
     vim QuickFixCurrentNumber*.vmb.gz
     :so %
 To uninstall, use the |:RmVimball| command.
@@ -103,8 +109,26 @@ TODO						  *QuickFixCurrentNumber-todo*
 
 IDEAS						 *QuickFixCurrentNumber-ideas*
 
+CONTRIBUTING				    *QuickFixCurrentNumber-contribute*
+
+Report any bugs, send patches, or suggest features via the issue tracker at
+https://github.com/inkarkat/vim-QuickFixCurrentNumber/issues or email (address
+below).
+
 ==============================================================================
 HISTORY					       *QuickFixCurrentNumber-history*
+
+1.20	12-Nov-2024
+- BUG: [q / ]q get stuck if there are multiple errors at one position.
+- :[CL]nr now reports number ranges if there are multiple items at the cursor
+  position.
+- :[CL]go allows [count] to go to following items at the cursor position
+- Robustness: Limit the reported item column to the actual line length to
+  avoid that iteration with [q / ]q gets stuck.
+- FIX: Iteration with reported virtual columns throws "E117: Unknown function:
+  vcol"
+- [q / ]q / g<C-Q> open a closed fold after the jump to make the target line /
+  quickfix entry visible.
 
 1.11	11-Mar-2015
 - :Cgo and :Lgo take [!] to behave like g<C-Q>, i.e. jump back to the last
@@ -136,7 +160,7 @@ First published version.
 Started development.
 
 ==============================================================================
-Copyright: (C) 2013-2019 Ingo Karkat
+Copyright: (C) 2013-2024 Ingo Karkat
 The VIM LICENSE applies to this plugin; see |copyright|.
 
 Maintainer:	Ingo Karkat <ingo@karkat.de>
